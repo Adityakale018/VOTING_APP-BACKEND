@@ -88,32 +88,54 @@
   overflow: hidden;
 }
 
-/* Grid background */
+/* Voting-themed background with ballot and democracy symbols */
 .auth-container::before {
   content: '';
   position: absolute;
   width: 100%;
   height: 100%;
   background-image: 
-    linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: float 20s ease-in-out infinite;
-  opacity: 0.3;
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><g opacity="0.15"><rect x="40" y="25" width="40" height="55" fill="none" stroke="rgba(102,126,234,0.8)" stroke-width="2" rx="3"/><circle cx="60" cy="40" r="3" fill="rgba(102,126,234,0.8)"/><circle cx="60" cy="52" r="3" fill="rgba(102,126,234,0.8)"/><circle cx="60" cy="64" r="3" fill="rgba(102,126,234,0.8)"/><path d="M 48 40 L 54 40" stroke="rgba(102,126,234,0.8)" stroke-width="1.5"/><path d="M 48 52 L 54 52" stroke="rgba(102,126,234,0.8)" stroke-width="1.5"/><path d="M 48 64 L 54 64" stroke="rgba(102,126,234,0.8)" stroke-width="1.5"/><rect x="35" y="75" width="50" height="10" fill="rgba(102,126,234,0.3)" rx="2"/></g></svg>'),
+    linear-gradient(rgba(102, 126, 234, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102, 126, 234, 0.05) 1px, transparent 1px);
+  background-size: 500px 500px, 50px 50px, 50px 50px;
+  background-position: 0 0, 0 0, 0 0;
+  animation: float 25s ease-in-out infinite, bg-scroll 70s linear infinite;
+  opacity: 0.35;
 }
 
-/* Floating particle */
+@keyframes bg-scroll {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 500px 500px, 0 0, 0 0;
+  }
+}
+
+/* Floating democracy symbols */
 .auth-container::after {
   content: '';
   position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
-  border-radius: 50%;
-  top: -300px;
-  right: -300px;
-  animation: float-alt 15s ease-in-out infinite;
-  filter: blur(40px);
+  width: 100%;
+  height: 100%;
+  background-image: 
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><g opacity="0.12"><path d="M 60 80 L 75 95 L 110 60" fill="none" stroke="rgba(236,72,153,1)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="90" cy="90" r="50" fill="none" stroke="rgba(236,72,153,0.6)" stroke-width="2.5"/></g></svg>');
+  background-size: 700px 700px;
+  background-position: 100% 100%;
+  animation: float-alt 22s ease-in-out infinite, bg-scroll-alt 55s linear infinite;
+  filter: blur(35px);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+@keyframes bg-scroll-alt {
+  0% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
 }
 
 .auth-card {

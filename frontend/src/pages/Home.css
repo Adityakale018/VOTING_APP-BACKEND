@@ -81,45 +81,54 @@
   overflow: hidden;
 }
 
-/* Animated grid background */
+/* Voting-themed background pattern with ballot box icons */
 .home-container::before {
   content: '';
   position: absolute;
   width: 100%;
   height: 100%;
   background-image: 
-    linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: float 20s ease-in-out infinite;
-  opacity: 0.3;
-}
-/* Animated grid background */
-.home-container::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: float 20s ease-in-out infinite;
-  opacity: 0.3;
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="30" y="20" width="40" height="50" fill="none" stroke="rgba(102,126,234,0.15)" stroke-width="2" rx="3"/><path d="M 35 35 L 43 43 L 60 26" fill="none" stroke="rgba(102,126,234,0.15)" stroke-width="2.5" stroke-linecap="round"/><rect x="25" y="65" width="50" height="8" fill="rgba(102,126,234,0.1)" rx="2"/></svg>'),
+    linear-gradient(rgba(102, 126, 234, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102, 126, 234, 0.05) 1px, transparent 1px);
+  background-size: 400px 400px, 50px 50px, 50px 50px;
+  background-position: 0 0, 0 0, 0 0;
+  animation: float 30s ease-in-out infinite, bg-scroll 60s linear infinite;
+  opacity: 0.4;
 }
 
-/* Floating particles */
+@keyframes bg-scroll {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 400px 400px, 0 0, 0 0;
+  }
+}
+
+/* Floating particles with voting symbols */
 .home-container::after {
   content: '';
   position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
-  border-radius: 50%;
-  top: -300px;
-  right: -300px;
-  animation: float-alt 15s ease-in-out infinite;
-  filter: blur(40px);
+  width: 100%;
+  height: 100%;
+  background-image: 
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="60" fill="none" stroke="rgba(236,72,153,0.1)" stroke-width="2"/><path d="M 75 100 L 90 115 L 125 80" fill="none" stroke="rgba(236,72,153,0.12)" stroke-width="3" stroke-linecap="round"/></svg>');
+  background-size: 600px 600px;
+  background-position: 100% 100%;
+  animation: float-alt 20s ease-in-out infinite, bg-scroll-alt 50s linear infinite;
+  filter: blur(30px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+@keyframes bg-scroll-alt {
+  0% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
 }
 
 .home-content {
