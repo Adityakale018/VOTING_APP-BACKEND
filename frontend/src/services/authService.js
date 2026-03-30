@@ -13,7 +13,7 @@ export const authService = {
 
   async getProfile() {
     const response = await api.get('/user/profile')
-    return response.data.User || response.data
+    return response.data
   },
 
   async updatePassword(currentpassword, newpassword) {

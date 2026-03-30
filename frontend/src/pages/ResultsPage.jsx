@@ -41,9 +41,17 @@ export default function ResultsPage() {
     if (isRefresh) setRefreshing(true)
     try {
       const data = await candidateService.getVoteCount()
-      const sorted = (Array.isArray(data) ? data : data.results || []).sort(
-        (a, b) => (b.voteCount || 0) - (a.voteCount || 0)
-      )
+      let list = []
+      if (Array.isArray(data)) {
+        list = data
+      } else if (data && Array.isArray(data.results)) {
+        list = data.results
+      } else {
+        list = []
+      }
+      const sorted = list
+        .filter((item) => item && typeof item === 'object')
+        .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0))
       setResults(sorted)
       setLastUpdated(new Date())
     } catch (error) {

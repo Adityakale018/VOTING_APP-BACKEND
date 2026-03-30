@@ -68,7 +68,7 @@ router.get('/profile',jwtMiddleware,async(req,res)=>{
         const userID = userData.id;
         const User = await user.findById(userID);
 
-        res.status(200).json({User});
+        res.status(200).json(User);
     }
     catch(err){
         console.error(err);
