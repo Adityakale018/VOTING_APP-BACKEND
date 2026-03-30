@@ -17,6 +17,23 @@ const initialForm = {
   role: 'voter',
 }
 
+function Field({ name, label, type = 'text', placeholder, formData, errors, onChange }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-white/70 mb-2">{label}</label>
+      <input
+        type={type}
+        name={name}
+        value={formData[name]}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`input-field ${errors[name] ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}`}
+      />
+      {errors[name] && <p className="text-red-400 text-xs mt-1">{errors[name]}</p>}
+    </div>
+  )
+}
+
 export default function Register() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState(initialForm)
@@ -58,21 +75,6 @@ export default function Register() {
     }
   }
 
-  const Field = ({ name, label, type = 'text', placeholder }) => (
-    <div>
-      <label className="block text-sm font-medium text-white/70 mb-2">{label}</label>
-      <input
-        type={type}
-        name={name}
-        value={formData[name]}
-        onChange={handleChange}
-        placeholder={placeholder}
-        className={`input-field ${errors[name] ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}`}
-      />
-      {errors[name] && <p className="text-red-400 text-xs mt-1">{errors[name]}</p>}
-    </div>
-  )
-
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 py-24 relative overflow-hidden">
       <div className="absolute -top-32 -right-32 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl" />
@@ -95,14 +97,14 @@ export default function Register() {
         <div className="glass p-8 shadow-2xl shadow-black/40">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <Field name="name" label="Full Name" placeholder="John Doe" />
-              <Field name="age" label="Age" type="number" placeholder="18" />
-              <Field name="email" label="Email Address" type="email" placeholder="john@example.com" />
-              <Field name="mobile" label="Mobile Number" placeholder="10-digit number" />
+              <Field name="name" label="Full Name" placeholder="John Doe" formData={formData} errors={errors} onChange={handleChange} />
+              <Field name="age" label="Age" type="number" placeholder="18" formData={formData} errors={errors} onChange={handleChange} />
+              <Field name="email" label="Email Address" type="email" placeholder="john@example.com" formData={formData} errors={errors} onChange={handleChange} />
+              <Field name="mobile" label="Mobile Number" placeholder="10-digit number" formData={formData} errors={errors} onChange={handleChange} />
             </div>
 
-            <Field name="address" label="Address" placeholder="Your full address" />
-            <Field name="aadharNumber" label="Aadhar Number" placeholder="12-digit Aadhar number" />
+            <Field name="address" label="Address" placeholder="Your full address" formData={formData} errors={errors} onChange={handleChange} />
+            <Field name="aadharNumber" label="Aadhar Number" placeholder="12-digit Aadhar number" formData={formData} errors={errors} onChange={handleChange} />
 
             {/* Password */}
             <div>
