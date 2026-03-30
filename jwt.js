@@ -3,8 +3,13 @@ const jwt = require('jsonwebtoken');
 const jwtMiddleware = (req,res,next) => {
     // extract jwt token from request headers
 
-    const token = req.headers.authorization.split(' ')[1];
-    if(!token) res.status(401).json({error:'unauthorized'});
+    const authHeader = req.headers.authorization;
+    if(!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({error:'Authorization header must start with Bearer'});
+    }
+
+    const token = authHeader.split(' ')[1];
+    if(!token) return res.status(401).json({error:'No token provided'});
 
     try{
         // verify jwt token
@@ -15,7 +20,7 @@ const jwtMiddleware = (req,res,next) => {
         next();
     }catch(err){
         console.error(err);
-        res.status(401).json({error:'invalid token'});
+        return res.status(401).json({error:'invalid token'});
     }
 }
 

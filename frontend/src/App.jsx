@@ -10,7 +10,6 @@ import Dashboard from './pages/Dashboard'
 import VotingPage from './pages/VotingPage'
 import ResultsPage from './pages/ResultsPage'
 import ProfilePage from './pages/ProfilePage'
-import AdminPage from './pages/AdminPage'
 import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
 
@@ -35,7 +34,7 @@ function AppRoutes() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/results" element={<ResultsPage />} />
+        <Route path="/results" element={<ProtectedRoute><ResultsPage /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/vote" element={<ProtectedRoute><VotingPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
