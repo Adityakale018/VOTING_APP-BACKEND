@@ -10,12 +10,21 @@ import Dashboard from './pages/Dashboard'
 import VotingPage from './pages/VotingPage'
 import ResultsPage from './pages/ResultsPage'
 import ProfilePage from './pages/ProfilePage'
+import AdminPage from './pages/AdminPage'
 import NotFound from './pages/NotFound'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
   if (loading) return null
   return isAuthenticated ? children : <Navigate to="/login" replace />
+}
+
+function AdminRoute({ children }) {
+  const { isAuthenticated, loading, user } = useAuth()
+  if (loading) return null
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" replace />
+  return children
 }
 
 function AppRoutes() {
@@ -29,6 +38,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/vote" element={<ProtectedRoute><VotingPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>

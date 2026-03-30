@@ -18,7 +18,7 @@ const checkAdminrole = async (userID)=>{
 }
 
 
-router.post('/', async (req,res)=>{
+router.post('/', jwtMiddleware, async (req, res) => {
     try{
     if(! await checkAdminrole(req.user.id)){
         return res.status(404).json({message:'user has no admin role'});
@@ -126,7 +126,7 @@ router.get('/candidates', jwtMiddleware, async (req, res) => {
 });
 
 
-router.put('/:candidateID', async (req, res) => {
+router.put('/:candidateID', jwtMiddleware, async (req, res) => {
     try {
         if(! await checkAdminrole(req.user.id)){
         return res.status(404).json({message:'user has no admin role'});
@@ -159,7 +159,7 @@ router.put('/:candidateID', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', jwtMiddleware, async (req, res) => {
     try {
         if(!await checkAdminrole(req.user.id)){
         return res.status(404).json({message:'user has no admin role'});
