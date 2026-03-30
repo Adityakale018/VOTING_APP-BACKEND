@@ -98,8 +98,9 @@ router.get('/vote/count',async(req,res)=>{
 
         const voterecord = Candidate.map((data)=>{
             return{
+                name:data.name,
                 party:data.party,
-                count:data.voteCount
+                voteCount:data.voteCount
             }
         })
         res.status(200).json(voterecord);

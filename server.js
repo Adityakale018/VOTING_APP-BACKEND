@@ -1,11 +1,9 @@
+require('dotenv').config();
 const express = require('express')
 const app = express();
 const db=require('./db');
 app.use(express.json());
-const port = 3000
 const {jwtMiddleware} = require('./jwt');
-
-//require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser')

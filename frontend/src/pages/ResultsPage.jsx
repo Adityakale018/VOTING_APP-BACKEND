@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { FiAward, FiBarChart2, FiRefreshCw, FiUsers } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { candidateService } from '../services/candidateService'
 import { getErrorMessage } from '../utils/helpers'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+
+const POLL_INTERVAL = 10 // seconds
 
 function CountUp({ target, duration = 2000 }) {
   const [count, setCount] = useState(0)
@@ -31,8 +33,11 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(null)
+  const [countdown, setCountdown] = useState(POLL_INTERVAL)
+  const pollRef = useRef(null)
+  const countdownRef = useRef(null)
 
-  const fetchResults = async (isRefresh = false) => {
+  const fetchResults = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true)
     try {
       const data = await candidateService.getVoteCount()
@@ -47,11 +52,36 @@ export default function ResultsPage() {
       setLoading(false)
       setRefreshing(false)
     }
-  }
+  }, [])
 
+  const resetCountdown = useCallback(() => {
+    setCountdown(POLL_INTERVAL)
+    clearInterval(countdownRef.current)
+    countdownRef.current = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : POLL_INTERVAL))
+    }, 1000)
+  }, [])
+
+  // Auto-poll every POLL_INTERVAL seconds
   useEffect(() => {
     fetchResults()
-  }, [])
+    resetCountdown()
+
+    pollRef.current = setInterval(() => {
+      fetchResults()
+      resetCountdown()
+    }, POLL_INTERVAL * 1000)
+
+    return () => {
+      clearInterval(pollRef.current)
+      clearInterval(countdownRef.current)
+    }
+  }, [fetchResults, resetCountdown])
+
+  const handleManualRefresh = () => {
+    fetchResults(true)
+    resetCountdown()
+  }
 
   const totalVotes = results.reduce((sum, r) => sum + (r.voteCount || 0), 0)
   const maxVotes = results[0]?.voteCount || 1
@@ -96,8 +126,12 @@ export default function ResultsPage() {
               <div className="text-2xl font-bold text-white">{results.length}</div>
               <div className="text-white/40 text-xs mt-1">Parties</div>
             </div>
+            <div className="glass px-6 py-3 text-center">
+              <div className="text-2xl font-bold text-violet-400">{countdown}s</div>
+              <div className="text-white/40 text-xs mt-1">Next update</div>
+            </div>
             <button
-              onClick={() => fetchResults(true)}
+              onClick={handleManualRefresh}
               disabled={refreshing}
               className="glass px-6 py-3 text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-2 text-sm"
             >
@@ -148,6 +182,9 @@ export default function ResultsPage() {
                         <h3 className={`text-lg font-bold ${isLeading ? color.text : 'text-white'}`}>
                           {result.party}
                         </h3>
+                        {result.name && (
+                          <p className="text-white/50 text-sm">{result.name}</p>
+                        )}
                         {isLeading && (
                           <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/20">
                             Leading
