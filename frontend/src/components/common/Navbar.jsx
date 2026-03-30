@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiHome, FiMoon, FiSun } from 'react-icons/fi'
+import { FiMenu, FiX, FiUser, FiLogOut, FiBarChart2, FiHome, FiMoon, FiSun, FiSettings } from 'react-icons/fi'
 import { useAuth } from '../../hooks/useAuth'
 
 export default function Navbar() {
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, logout, user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
@@ -36,7 +36,9 @@ export default function Navbar() {
 
   const navLinks = isAuthenticated
     ? [
-        { to: '/dashboard', label: 'Dashboard', icon: <FiHome /> },
+        ...(user?.role === 'admin'
+          ? [{ to: '/admin', label: 'Admin', icon: <FiSettings /> }]
+          : [{ to: '/dashboard', label: 'Dashboard', icon: <FiHome /> }]),
         { to: '/results', label: 'Results', icon: <FiBarChart2 /> },
         { to: '/profile', label: 'Profile', icon: <FiUser /> },
       ]

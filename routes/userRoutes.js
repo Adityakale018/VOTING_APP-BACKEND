@@ -17,7 +17,8 @@ router.post('/signup', async (req,res)=>{
 
     const payload = {
         id:response.id,
-        //username:response.username
+        username: response.username,
+        role: response.role
     }
 
     const token = generateToken(payload);
@@ -49,7 +50,8 @@ router.post('/login',async(req,res)=>{
     // generate token
     const payload ={
         id:User.id,
-        username:User.username
+        username: User.username,
+        role: User.role
     }
     const token = generateToken(payload);
     res.json({token})
