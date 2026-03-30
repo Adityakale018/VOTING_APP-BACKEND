@@ -92,7 +92,7 @@ router.post('/vote/:candidateID',jwtMiddleware,async(req,res)=>{
     }
 })
 
-router.get('/vote/count',async(req,res)=>{
+router.get('/vote/count',jwtMiddleware,async(req,res)=>{
     try{
         const Candidate = await candidate.find().sort({voteCount:'desc'});
 

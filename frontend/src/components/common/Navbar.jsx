@@ -44,7 +44,6 @@ export default function Navbar() {
       ]
     : [
         { to: '/', label: 'Home', icon: <FiHome /> },
-        { to: '/results', label: 'Results', icon: <FiBarChart2 /> },
       ]
 
   return (
