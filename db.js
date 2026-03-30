@@ -1,5 +1,4 @@
 const mongoose=require('mongoose');
-require('dotenv').config();
 
 // mongodb connection url
 
@@ -18,7 +17,7 @@ db.on('connected',()=>{
 })
 
 db.on('error',(err)=>{
-    console.error("connected to database server"),err;
+    console.error("MongoDB connection error:",err);
 })
 
 db.on('disconnected',()=>{
