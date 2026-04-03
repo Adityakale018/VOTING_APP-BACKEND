@@ -1,8 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const candidate = require('./../models/candidate');
 const user = require('./../models/user');
 const { jwtMiddleware } = require('./../jwt');
+
+const statsLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' },
+});
 
 const checkAdminRole = async (userID) => {
     try {
@@ -14,7 +23,7 @@ const checkAdminRole = async (userID) => {
 };
 
 // GET /admin/stats - Fetch real-time voting statistics (admin only)
-router.get('/stats', jwtMiddleware, async (req, res) => {
+router.get('/stats', statsLimiter, jwtMiddleware, async (req, res) => {
     try {
         if (!await checkAdminRole(req.user.id)) {
             return res.status(403).json({ message: 'Access denied: admin role required' });

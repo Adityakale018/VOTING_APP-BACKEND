@@ -71,6 +71,9 @@ export default function ResultsPage() {
 
     socket.on('connect', () => setLiveConnected(true))
     socket.on('disconnect', () => setLiveConnected(false))
+    socket.on('connect_error', () => {
+      setLiveConnected(false)
+    })
     socket.on('voteUpdate', (data) => {
       applyResults(data)
     })
