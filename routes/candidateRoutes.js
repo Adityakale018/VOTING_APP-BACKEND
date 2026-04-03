@@ -83,6 +83,18 @@ router.post('/vote/:candidateID',jwtMiddleware,async(req,res)=>{
         User.isvoted = true;
         await User.save();
 
+        // Emit real-time vote update to all connected clients
+        const io = req.app.get('io');
+        if (io) {
+            const allCandidates = await require('./../models/candidate').find().sort({ voteCount: 'desc' });
+            const voteUpdate = allCandidates.map((c) => ({
+                name: c.name,
+                party: c.party,
+                voteCount: c.voteCount,
+            }));
+            io.emit('voteUpdate', voteUpdate);
+        }
+
         res.status(200).json({message:"you have voted successfully"})
 
     }

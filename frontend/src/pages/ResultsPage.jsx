@@ -2,11 +2,11 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { FiAward, FiBarChart2, FiRefreshCw, FiUsers } from 'react-icons/fi'
 import { toast } from 'react-toastify'
+import { io } from 'socket.io-client'
 import { candidateService } from '../services/candidateService'
 import { getErrorMessage } from '../utils/helpers'
 import LoadingSpinner from '../components/common/LoadingSpinner'
-
-const POLL_INTERVAL = 10 // seconds
+import { API_URL } from '../utils/constants'
 
 function CountUp({ target, duration = 2000 }) {
   const [count, setCount] = useState(0)
@@ -33,62 +33,70 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(null)
-  const [countdown, setCountdown] = useState(POLL_INTERVAL)
+  const [liveConnected, setLiveConnected] = useState(false)
   const pollRef = useRef(null)
-  const countdownRef = useRef(null)
+  const socketRef = useRef(null)
+
+  const applyResults = useCallback((data) => {
+    let list = []
+    if (Array.isArray(data)) {
+      list = data
+    } else if (data && Array.isArray(data.results)) {
+      list = data.results
+    }
+    const sorted = list
+      .filter((item) => item && typeof item === 'object')
+      .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0))
+    setResults(sorted)
+    setLastUpdated(new Date())
+  }, [])
 
   const fetchResults = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true)
     try {
       const data = await candidateService.getVoteCount()
-      let list = []
-      if (Array.isArray(data)) {
-        list = data
-      } else if (data && Array.isArray(data.results)) {
-        list = data.results
-      } else {
-        list = []
-      }
-      const sorted = list
-        .filter((item) => item && typeof item === 'object')
-        .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0))
-      setResults(sorted)
-      setLastUpdated(new Date())
+      applyResults(data)
     } catch (error) {
       toast.error(getErrorMessage(error))
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
-  }, [])
+  }, [applyResults])
 
-  const resetCountdown = useCallback(() => {
-    setCountdown(POLL_INTERVAL)
-    clearInterval(countdownRef.current)
-    countdownRef.current = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : POLL_INTERVAL))
-    }, 1000)
-  }, [])
+  // Socket.IO for real-time updates
+  useEffect(() => {
+    const socket = io(API_URL, { transports: ['websocket', 'polling'] })
+    socketRef.current = socket
 
-  // Auto-poll every POLL_INTERVAL seconds
+    socket.on('connect', () => setLiveConnected(true))
+    socket.on('disconnect', () => setLiveConnected(false))
+    socket.on('voteUpdate', (data) => {
+      applyResults(data)
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [applyResults])
+
+  // Fallback polling every POLL_INTERVAL seconds when socket is not connected
   useEffect(() => {
     fetchResults()
-    resetCountdown()
 
     pollRef.current = setInterval(() => {
-      fetchResults()
-      resetCountdown()
-    }, POLL_INTERVAL * 1000)
+      if (!liveConnected) {
+        fetchResults()
+      }
+    }, 10000)
 
     return () => {
       clearInterval(pollRef.current)
-      clearInterval(countdownRef.current)
     }
-  }, [fetchResults, resetCountdown])
+  }, [fetchResults, liveConnected])
 
   const handleManualRefresh = () => {
     fetchResults(true)
-    resetCountdown()
   }
 
   const totalVotes = results.reduce((sum, r) => sum + (r.voteCount || 0), 0)
@@ -115,8 +123,8 @@ export default function ResultsPage() {
           className="text-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium mb-5">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            Live Vote Count
+            <div className={`w-2 h-2 rounded-full animate-pulse ${liveConnected ? 'bg-green-400' : 'bg-yellow-400'}`} />
+            {liveConnected ? 'Live Vote Count' : 'Auto-refreshing'}
           </div>
           <h1 className="text-4xl font-bold text-white mb-3">
             Election <span className="gradient-text">Results</span>
@@ -135,8 +143,10 @@ export default function ResultsPage() {
               <div className="text-white/40 text-xs mt-1">Parties</div>
             </div>
             <div className="glass px-6 py-3 text-center">
-              <div className="text-2xl font-bold text-violet-400">{countdown}s</div>
-              <div className="text-white/40 text-xs mt-1">Next update</div>
+              <div className={`text-2xl font-bold ${liveConnected ? 'text-green-400' : 'text-yellow-400'}`}>
+                {liveConnected ? 'Live' : 'Poll'}
+              </div>
+              <div className="text-white/40 text-xs mt-1">Update mode</div>
             </div>
             <button
               onClick={handleManualRefresh}
