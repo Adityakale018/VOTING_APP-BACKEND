@@ -1,9 +1,18 @@
 const express = require('express');
 const router =  express.Router();
+const rateLimit = require('express-rate-limit');
 const candidate=require('./../models/candidate');
 const user=require('./../models/user');
 
 const {jwtMiddleware,generateToken} = require('./../jwt');
+
+const voteLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many vote attempts, please try again later.' },
+});
 
 const checkAdminrole = async (userID)=>{
     try{
@@ -54,7 +63,7 @@ router.get('/profile',jwtMiddleware,async(req,res)=>{
     }
 })
 
-router.post('/vote/:candidateID',jwtMiddleware,async(req,res)=>{
+router.post('/vote/:candidateID', voteLimiter, jwtMiddleware,async(req,res)=>{
 
     candidateID = req.params.candidateID;
     userID = req.user.id;
@@ -82,6 +91,18 @@ router.post('/vote/:candidateID',jwtMiddleware,async(req,res)=>{
 
         User.isvoted = true;
         await User.save();
+
+        // Emit real-time vote update to all connected clients
+        const io = req.app.get('io');
+        if (io) {
+            const allCandidates = await candidate.find().sort({ voteCount: 'desc' });
+            const voteUpdate = allCandidates.map((c) => ({
+                name: c.name,
+                party: c.party,
+                voteCount: c.voteCount,
+            }));
+            io.emit('voteUpdate', voteUpdate);
+        }
 
         res.status(200).json({message:"you have voted successfully"})
 
